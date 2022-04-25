@@ -11,5 +11,5 @@ func main() {
 		writer.Write([]byte("Hello, world!"))
 	})
 
-	log.Fatal(http.ListenAndServeTLS(":8080", "fd.crt", "fd.key", nil))
+	log.Fatal(http.ListenAndServeTLS(":8080", "./https/server.crt", "./https/private.key", nil))
 }
