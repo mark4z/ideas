@@ -14,9 +14,9 @@ var orderNumber = 123456789
 var cnt = 10
 var goroutineCnt = 20
 
-var gateway = "http://3/pt/"
+var gateway = "http://tw-openapi-pt.intranet.local/pt/user-center-lifecycle/userInfo/v1/queryMemberInfo"
 var client = http.DefaultClient
-var token = "1"
+var token = "eyJraWQiOiIyQXFzRWdoWDEzSmxtQVNjaWc5a0loZFN5OW9abk9SSzE0MG9scFFvYWcwPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiIzaGI3Mzd0ZG5sbDJyOG5kczA4aW5oMGhyciIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiZWNvbVwvYXBpLmFsbCIsImF1dGhfdGltZSI6MTY1MjM0MTc3NCwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLW5vcnRoZWFzdC0xLmFtYXpvbmF3cy5jb21cL2FwLW5vcnRoZWFzdC0xX05aWDJUcXNHZCIsImV4cCI6MTY1MjQyODE3NCwiaWF0IjoxNjUyMzQxNzc0LCJ2ZXJzaW9uIjoyLCJqdGkiOiI4OWI3ZGFlYS1hMDZhLTQyYzAtODc3YS0zYTQwZjM3ZjVjZmMiLCJjbGllbnRfaWQiOiIzaGI3Mzd0ZG5sbDJyOG5kczA4aW5oMGhyciJ9.eY4koN9p1BwS_EWygxWOPwqN0wzPJ25i-yQv1HuVt8E6XkSNTaDj7lP0EyTsYkqAARFRQpz33zpbxOnzkalRJI1ydtdd244peVUcE1C0RTr6qf6a1noj-SHFM7614bT77ReFMnZkjJI6DR1O3tgBe-Jy8HfZsV3SZ9lkh_y_4-KTQWYyP2_inuNUYHVj0_4SEokGrekZh5yLe--BsOdbfiIZlr9x2JZe3OQ5Xretefaz3g8V1_BeUeoIMncoUoLj-yOkrVEamm-Oc9g6nYz2_xd_E2SjGz2Wf_ls073JiuqSIkuIPkIn-_IifHUF_Qj8Cz5WCi4w8pUpjwgwCWVmIQ"
 
 func main() {
 	add(orderNumber)
@@ -25,8 +25,7 @@ func main() {
 func add(number int) {
 	no := 0
 
-	template := "{\n  \"regionCode\": \"130\",\n  \"bizCode\": \"INT\",\n  \"language\": \"zh-TW\",\n  \"channel\": \"INT\",\n  \"items\": [\n    {\n      \"cityCode\": \"#{c}\",\n      \"districtCode\": \"#{d}\",\n      \"ada\": \"#{ada}\",\n      \"action\": 1,\n      \"memberFlag\": \"1\",\n      \"channel\": \"test\",\n      \"regionCode\": \"130\"\n    }\n  ]\n}"
-
+	template := "{\n  \"searchKeys\": [\n    {\n      \"type\": \"aboNumber\",\n      \"value\": \"#{ada}\"\n    }\n  ],\n  \"scope\": [\n    \"basic\",\n    \"applicant\",\n    \"extend\",\n    \"phone\",\n    \"email\"\n  ],\n  \"regionCode\": \"130\",\n  \"channel\": \"INT\",\n  \"bizCode\": \"INT\",\n  \"language\": \"zh-CN\"\n}"
 	//open a file and read the content
 	file, err := ioutil.ReadFile("benchmark.txt")
 	if err != nil {
