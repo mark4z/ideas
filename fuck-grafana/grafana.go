@@ -14,18 +14,21 @@ import (
 func main() {
 	log.Printf("Starting UC")
 	uc := center{
-		name: "user-center-lifecycle|user-center-privilege",
-		db:   "pd-ecom-uc-common-auroramysql",
+		pod:       "(user-center-lifecycle|user-center-privilege)",
+		nameSpace: "ecommerce-user-center",
+		db:        "pd-ecom-uc-common-auroramysql",
 		redis: `"pd-ecom-uc-lifecycle-redis-0001-001",
              "pd-ecom-uc-lifecycle-redis-0001-002",
              "pd-ecom-uc-privilege-redis-0001-001",
              "pd-ecom-uc-privilege-redis-0001-002"`,
 	}
 	uc.call()
+	log.Printf("\n")
 	log.Printf("Starting MGC")
 	mgc := center{
-		name: "message-center",
-		db:   "pd-ecom-mgc-common-auroramysql",
+		pod:       "message-center",
+		nameSpace: "ecommerce-message-center",
+		db:        "pd-ecom-mgc-common-auroramysql",
 		redis: `"pd-ecom-mgc-app-redis-0001-001",
 			 "pd-ecom-mgc-app-redis-0001-002"`,
 	}
@@ -319,11 +322,12 @@ const (
 )
 
 type center struct {
-	name  string
-	db    string
-	mq    string
-	es    string
-	redis string
+	pod       string
+	nameSpace string
+	db        string
+	mq        string
+	es        string
+	redis     string
 }
 
 func (c *center) call() {
@@ -337,11 +341,11 @@ func (c *center) call() {
 			log.Printf("[RT]: %s %vms", urlMax, int(rtMax*1000))
 		},
 	}
-	rt.expr = strings.Replace(rt.expr, "{{environment}}", c.name, -1)
+	rt.expr = strings.Replace(rt.expr, "{{environment}}", c.pod, -1)
 	rt.call()
 	cpu := &Query{
 		query:         queries,
-		expr:          `sum(rate(container_cpu_usage_seconds_total{environment="pd", pod =~".*({{environment}}).*", namespace=~"ecommerce-user-center", container=~".*center.*"}[2m]) )by (pod)/ sum(kube_pod_container_resource_limits{app_kubernetes_io_instance="amp-prometheus",environment="pd", resource="cpu", namespace=~"ecommerce-user-center", container=~".*center.*"}) by (pod)`,
+		expr:          `sum(rate(container_cpu_usage_seconds_total{environment="pd", pod =~".*{{pod}}.*", namespace=~"{{environment}}", container=~".*center.*"}[2m]) )by (pod)/ sum(kube_pod_container_resource_limits{app_kubernetes_io_instance="amp-prometheus",environment="pd", resource="cpu", namespace=~"{{environment}}", container=~".*center.*"}) by (pod)`,
 		requestId:     "143A",
 		maxDataPoints: 511,
 		legendFormat:  "{{pod}}",
@@ -349,8 +353,23 @@ func (c *center) call() {
 			log.Printf("[CPU]: %s %%%v", urlMax, int(rtMax*100))
 		},
 	}
-	cpu.expr = strings.Replace(rt.expr, "{{environment}}", c.name, -1)
+	cpu.expr = strings.Replace(cpu.expr, "{{environment}}", c.nameSpace, -1)
+	cpu.expr = strings.Replace(cpu.expr, "{{pod}}", c.pod, -1)
 	cpu.call()
+	mem := &Query{
+		query:         queries,
+		expr:          `sum(container_memory_working_set_bytes{environment="pd", image!="",name=~"^k8s_.*",pod =~".*{{pod}}.*", namespace=~"{{environment}}"})by (pod) / sum(kube_pod_container_resource_limits{app_kubernetes_io_instance="amp-prometheus",environment="pd", pod =~".*{{pod}}.*", namespace=~"{{environment}}",resource="memory"})by (pod) * 100`,
+		requestId:     "145A",
+		maxDataPoints: 511,
+		legendFormat:  "{{pod}}",
+		out: func(urlMax string, rtMax float64) {
+			log.Printf("[MEM]: %s %%%v", urlMax, int(rtMax))
+		},
+	}
+	mem.expr = strings.Replace(mem.expr, "{{environment}}", c.nameSpace, -1)
+	mem.expr = strings.Replace(mem.expr, "{{pod}}", c.pod, -1)
+	mem.call()
+
 	rdsCpu := &Query{
 		query: strings.Replace(rdsQueries, "{{environment}}", c.db, -1),
 		out: func(urlMax string, rtMax float64) {
@@ -362,7 +381,8 @@ func (c *center) call() {
 		query:        strings.Replace(rdsMemoryQueries, "{{environment}}", c.db, -1),
 		resultsLabel: "E",
 		out: func(urlMax string, rtMax float64) {
-			log.Printf("[RDS-MEM]: %s %%%v", urlMax, int(rtMax*100))
+			float, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", rtMax), 64)
+			log.Printf("[RDS-MEM]: %s %%%v", urlMax, float)
 		},
 	}
 	rdsMemory.call()
@@ -381,7 +401,8 @@ func (c *center) call() {
 			"queryType":  "randomWalk",
 		},
 		out: func(urlMax string, rtMax float64) {
-			log.Printf("[REDIS-MEM]: %s %%%v", urlMax, int(rtMax))
+			float, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", rtMax), 64)
+			log.Printf("[REDIS-MEM]: %s %%%v", urlMax, float)
 		},
 	}
 	redisMemory.call()
@@ -441,7 +462,7 @@ func (q *Query) outFunc(out map[string]interface{}) (string, float64) {
 	var urlMax string
 	for _, frame := range frames {
 		frame := frame.(map[string]interface{})
-		frameName, ok := frame["schema"].(map[string]interface{})["name"].(string)
+		frameName, ok := frame["schema"].(map[string]interface{})["pod"].(string)
 		if !ok {
 			frameName = ""
 		}
