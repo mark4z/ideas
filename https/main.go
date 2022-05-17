@@ -6,9 +6,10 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, world!"))
+	// a https server listening on port 8080
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte("Hello, world!"))
 	})
 
-	log.Fatal(http.ListenAndServeTLS(":8080", "./https/cert.crt", "./https/private.key", nil))
+	log.Fatal(http.ListenAndServeTLS(":8080", "./https/server.crt", "./https/private.key", nil))
 }
