@@ -12,33 +12,12 @@ import (
 )
 
 func main() {
-	log.Printf("Starting UC")
-	uc := center{
-		pod:       "(user-center-lifecycle|user-center-privilege)",
-		nameSpace: "ecommerce-user-center",
-		db:        "pd-ecom-uc-common-auroramysql",
-		redis: `"pd-ecom-uc-lifecycle-redis-0001-001",
-             "pd-ecom-uc-lifecycle-redis-0001-002",
-             "pd-ecom-uc-privilege-redis-0001-001",
-             "pd-ecom-uc-privilege-redis-0001-002"`,
-		es: "test",
-	}
-	uc.call()
-	log.Printf("\n")
-	log.Printf("Starting MGC")
-	mgc := center{
-		pod:       "message-center",
-		nameSpace: "ecommerce-message-center",
-		db:        "pd-ecom-mgc-common-auroramysql",
-		redis: `"pd-ecom-mgc-app-redis-0001-001",
-			 "pd-ecom-mgc-app-redis-0001-002"`,
-	}
-	mgc.call()
+
 }
 
 const (
 	url         = "https://g-db257d1d75.grafana-workspace.ap-northeast-1.amazonaws.com/api/ds/query"
-	cookie      = "grafana_session=183085299e3ffada0b760b2a62d87072"
+	cookie      = "grafana_session=28034e3a46f9d51893fc08a98f976777"
 	contentType = "application/json"
 	queries     = `
 {
