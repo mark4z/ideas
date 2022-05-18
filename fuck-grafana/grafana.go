@@ -38,7 +38,7 @@ func main() {
 
 const (
 	url         = "https://g-db257d1d75.grafana-workspace.ap-northeast-1.amazonaws.com/api/ds/query"
-	cookie      = "grafana_session=fec967c99f83e3962784707fca309e2c"
+	cookie      = "grafana_session=183085299e3ffada0b760b2a62d87072"
 	contentType = "application/json"
 	queries     = `
 {
@@ -288,7 +288,7 @@ const (
 {
     "queries": [
         {
-            "intervalMs": 30000,
+            "intervalMs": 500,
             "maxDataPoints": 518,
             "alias": "{{DomainName}} - {{NodeId}}",
             "dimensions": {
@@ -305,7 +305,7 @@ const (
             "metricEditorMode": 0,
             "metricName": "CPUUtilization",
             "metricQueryType": 0,
-            "namespace": "AWS/es",
+            "namespace": "AWS/ES",
             "period": "",
             "queryType": "randomWalk",
             "refId": "A",
@@ -382,7 +382,7 @@ func (c *center) call() {
 		query:        strings.Replace(rdsMemoryQueries, "{{environment}}", c.db, -1),
 		resultsLabel: "E",
 		out: func(urlMax string, rtMax float64) {
-			float, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", rtMax), 64)
+			float, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", rtMax*100), 64)
 			log.Printf("[RDS-MEM]: %s %%%v", urlMax, float)
 		},
 	}
@@ -432,6 +432,18 @@ func (c *center) call() {
 			},
 		}
 		es.call()
+
+		esMemory := &Query{
+			query: esQueries,
+			others: map[string]interface{}{
+				"metricName": "MasterJVMMemoryPressure",
+				"statistic":  "Maximum",
+			},
+			out: func(urlMax string, rtMax float64) {
+				log.Printf("[es-MEM]: %v", int(rtMax))
+			},
+		}
+		esMemory.call()
 	}
 }
 
