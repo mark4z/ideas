@@ -21,6 +21,7 @@ func main() {
              "pd-ecom-uc-lifecycle-redis-0001-002",
              "pd-ecom-uc-privilege-redis-0001-001",
              "pd-ecom-uc-privilege-redis-0001-002"`,
+		es: "test",
 	}
 	uc.call()
 	log.Printf("\n")
@@ -462,7 +463,7 @@ func (q *Query) outFunc(out map[string]interface{}) (string, float64) {
 	var urlMax string
 	for _, frame := range frames {
 		frame := frame.(map[string]interface{})
-		frameName, ok := frame["schema"].(map[string]interface{})["pod"].(string)
+		frameName, ok := frame["schema"].(map[string]interface{})["name"].(string)
 		if !ok {
 			frameName = ""
 		}
