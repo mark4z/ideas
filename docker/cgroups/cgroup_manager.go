@@ -2,7 +2,7 @@ package cgroups
 
 import (
 	"github.com/mark4z/ideas/docker/cgroups/subsystems"
-	log "github.com/sirupsen/logrus"
+	"github.com/mark4z/ideas/docker/log"
 )
 
 type CgroupManager struct {
