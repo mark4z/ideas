@@ -48,9 +48,8 @@ func setUpMount() {
 		log.Errorf("get current path error %v", err)
 		return
 	}
-	pwd += "/busybox"
 	log.Infof("current location is %s", pwd)
-	pivotRoot(pwd)
+	pivotRoot(pwd + "/root/mnt")
 
 	//mount proc
 	defaultMonutFlags := syscall.MS_NOEXEC | syscall.MS_NOSUID | syscall.MS_NODEV
