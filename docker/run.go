@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
-	parent, writePipe := container.NewParentProcess(tty)
+func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, volume string) {
+	parent, writePipe := container.NewParentProcess(tty, volume)
 	if parent == nil {
 		log.Errorf("New parent process error")
 		return
@@ -30,7 +30,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig) {
 	pwd, _ := os.Getwd()
 	mntURL := pwd + "/root/mnt/"
 	rootURL := pwd + "/root/"
-	container.DeleteWorkSpace(rootURL, mntURL)
+	container.DeleteWorkSpace(rootURL, mntURL, volume)
 	os.Exit(0)
 }
 
