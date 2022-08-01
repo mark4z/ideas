@@ -1,15 +1,15 @@
 package main
 
 import (
-	"log"
 	"net/http"
 )
 
 func main() {
-	// a https server listening on port 8080
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte("Hello, world!"))
+		writer.Write([]byte("hello world!"))
 	})
-
-	log.Fatal(http.ListenAndServeTLS(":8080", "./https/server.crt", "./https/private.key", nil))
+	err := http.ListenAndServeTLS(":8080", "./server.crt", "./private.key", nil)
+	if err != nil {
+		return
+	}
 }

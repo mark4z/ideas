@@ -418,3 +418,6 @@
 /docker/root/busybox/etc/resolv.conf
 /docker/root/busybox/etc/shadow
 /docker/root/busybox/.dockerenv
+/https/private.key
+/https/server.crt
+/https/server.csr
